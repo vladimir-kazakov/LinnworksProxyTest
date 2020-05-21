@@ -1,24 +1,31 @@
 namespace ProxyApi
 {
+	using System;
 	using Microsoft.AspNetCore.Builder;
 	using Microsoft.AspNetCore.Hosting;
 	using Microsoft.AspNetCore.SpaServices.AngularCli;
 	using Microsoft.Extensions.Configuration;
 	using Microsoft.Extensions.DependencyInjection;
 	using Microsoft.Extensions.Hosting;
+	using Polly;
 
 	public class Startup
 	{
-		public IConfiguration Configuration { get; }
+		private readonly IConfiguration configuration;
 
 		public Startup(IConfiguration configuration)
 		{
-			Configuration = configuration;
+			this.configuration = configuration;
 		}
 
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.Configure<ProxyOptions>(configuration);
+
 			services.AddControllersWithViews();
+
+			services.AddHttpClient<IWebApi, LinnworksWebApi>()
+				.AddTransientHttpErrorPolicy(p => p.WaitAndRetryAsync(3, _ => TimeSpan.FromSeconds(1)));
 
 			services.AddSpaStaticFiles(configuration =>
 			{
