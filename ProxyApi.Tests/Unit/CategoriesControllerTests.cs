@@ -112,26 +112,6 @@
 		}
 
 		[Test]
-		public async Task Post_WhenNewCategoryIsInvalid_Returns400()
-		{
-			const string invalidPropertyName = "Test";
-			const string expectedErrorMessage = "Expected";
-
-			sut.ModelState.AddModelError(invalidPropertyName, expectedErrorMessage);
-
-			var response = await sut.PostAsync(new NewCategory());
-			var actual = response.Result as BadRequestObjectResult;
-
-			Assert.That(actual, Is.Not.Null, nameof(response.Result));
-
-			var actualError = (SerializableError)actual.Value;
-
-			Assert.That(actualError.Count, Is.EqualTo(sut.ModelState.ErrorCount), nameof(sut.ModelState.ErrorCount));
-			Assert.That(actualError.TryGetValue(invalidPropertyName, out var actualErrorMessages), Is.True, "PropertyName");
-			Assert.That(string.Join(string.Empty, (string[])actualErrorMessages), Is.EqualTo(expectedErrorMessage), "ErrorMessage");
-		}
-
-		[Test]
 		public async Task Delete_Normally_DeletesCategory()
 		{
 			var expectedCategoryId = Guid.Parse("4a34cf09-6711-4aea-ab92-8ddcd9edbd4c");

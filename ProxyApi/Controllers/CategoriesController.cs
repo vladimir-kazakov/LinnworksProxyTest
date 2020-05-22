@@ -29,9 +29,6 @@
 		[HttpPost]
 		public async Task<ActionResult<Category>> PostAsync([FromForm] NewCategory newCategory)
 		{
-			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
-
 			var webApi = webApiFactory.Create(User.Identity.Name);
 
 			// Since the Linnworks Web API doesn't have an endpoint to get a category by its ID,
