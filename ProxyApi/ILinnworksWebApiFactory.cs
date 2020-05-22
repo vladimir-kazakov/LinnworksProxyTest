@@ -2,6 +2,6 @@
 {
 	public interface ILinnworksWebApiFactory
 	{
-		IWebApi Create(string authenticationToken);
+		ILinnworksWebApi Create(string authenticationToken);
 	}
 }

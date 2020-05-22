@@ -18,12 +18,12 @@
 	{
 		private CategoriesController sut;
 
-		private IWebApi fakeWebApi;
+		private ILinnworksWebApi fakeWebApi;
 
 		[SetUp]
 		public void BeforeEachTest()
 		{
-			fakeWebApi = Substitute.For<IWebApi>();
+			fakeWebApi = Substitute.For<ILinnworksWebApi>();
 
 			var fakeWebApiFactory = Substitute.For<ILinnworksWebApiFactory>();
 
@@ -129,6 +129,19 @@
 			Assert.That(actualError.Count, Is.EqualTo(sut.ModelState.ErrorCount), nameof(sut.ModelState.ErrorCount));
 			Assert.That(actualError.TryGetValue(invalidPropertyName, out var actualErrorMessages), Is.True, "PropertyName");
 			Assert.That(string.Join(string.Empty, (string[])actualErrorMessages), Is.EqualTo(expectedErrorMessage), "ErrorMessage");
+		}
+
+		[Test]
+		public async Task Delete_Normally_DeletesCategory()
+		{
+			var expectedCategoryId = Guid.Parse("4a34cf09-6711-4aea-ab92-8ddcd9edbd4c");
+
+			var response = await sut.DeleteAsync(expectedCategoryId);
+			var actual = response as NoContentResult;
+
+			Assert.That(actual, Is.Not.Null);
+
+			await fakeWebApi.Received(1).DeleteCategoryAsync(expectedCategoryId);
 		}
 	}
 }

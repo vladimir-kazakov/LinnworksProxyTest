@@ -1,12 +1,15 @@
 ﻿namespace ProxyApi
 {
+	using System;
 	using System.Collections.Generic;
 	using System.Threading.Tasks;
 	using Models;
 
-	public interface IWebApi
+	public interface ILinnworksWebApi
 	{
 		Task<Category> CreateNewCategoryAsync(string categoryName);
+
+		Task DeleteCategoryAsync(Guid categoryId);
 
 		Task<Category[]> GetCategoriesAsync();
 		Task<Category[]> GetCategoriesWithProductsCountAsync();

@@ -10,7 +10,7 @@
 	using Microsoft.Extensions.Options;
 	using Models;
 
-	public class LinnworksWebApi : IWebApi
+	public class LinnworksWebApi : ILinnworksWebApi
 	{
 		private readonly string authenticationToken;
 		private readonly HttpClient httpClient;
@@ -150,6 +150,27 @@
 					Name = entity.CategoryName
 				};
 			}
+
+			var responseContent = await response.Content.ReadAsStringAsync();
+
+			throw new WebApiKnownException(response.StatusCode, responseContent);
+		}
+
+		public async Task DeleteCategoryAsync(Guid categoryId)
+		{
+			var requestMessage = new HttpRequestMessage(HttpMethod.Post, "Inventory/DeleteCategoryById");
+
+			requestMessage.Headers.Add(HttpHeaderName.Authorization, authenticationToken);
+
+			requestMessage.Content = new FormUrlEncodedContent(new[]
+			{
+				new KeyValuePair<string, string>("categoryId", categoryId.ToString())
+			});
+
+			var response = await httpClient.SendAsync(requestMessage);
+
+			if (response.StatusCode == HttpStatusCode.NoContent)
+				return;
 
 			var responseContent = await response.Content.ReadAsStringAsync();
 

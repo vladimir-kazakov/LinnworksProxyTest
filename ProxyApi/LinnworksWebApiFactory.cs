@@ -14,7 +14,7 @@
 			this.optionsSnapshot = optionsSnapshot;
 		}
 
-		public IWebApi Create(string authenticationToken)
+		public ILinnworksWebApi Create(string authenticationToken)
 		{
 			return new LinnworksWebApi(authenticationToken, httpClientFactory, optionsSnapshot);
 		}
