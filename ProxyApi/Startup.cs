@@ -24,6 +24,8 @@ namespace ProxyApi
 			services.Configure<ProxyOptions>(configuration);
 
 			services.AddScoped<AuthenticationActionFilter>();
+			services.AddScoped<WebApiKnownExceptionHandler>();
+
 			services.AddScoped<ILinnworksWebApiFactory, LinnworksWebApiFactory>();
 
 			services.AddControllersWithViews();

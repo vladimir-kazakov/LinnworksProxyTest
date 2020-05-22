@@ -50,7 +50,7 @@
 
 			var content = await response.Content.ReadAsStringAsync();
 
-			throw new WebApiResponseException(response.StatusCode, content);
+			throw new WebApiKnownException(response.StatusCode, content);
 		}
 
 		public async Task<Dictionary<string, string>[]> ExecuteCustomSqlQueryAsync(string sqlQuery)
@@ -76,14 +76,14 @@
 				var result = await JsonSerializer.DeserializeAsync<Entities.CustomSqlQueryResult>(responseStream);
 
 				if (result.IsError)
-					throw new WebApiResponseException(response.StatusCode, result.ErrorMessage);
+					throw new WebApiKnownException(response.StatusCode, result.ErrorMessage);
 
 				return result.Results;
 			}
 
 			var responseContent = await response.Content.ReadAsStringAsync();
 
-			throw new WebApiResponseException(response.StatusCode, responseContent);
+			throw new WebApiKnownException(response.StatusCode, responseContent);
 		}
 
 		public async Task<Category[]> GetCategoriesWithProductsCountAsync()
@@ -153,7 +153,7 @@
 
 			var responseContent = await response.Content.ReadAsStringAsync();
 
-			throw new WebApiResponseException(response.StatusCode, responseContent);
+			throw new WebApiKnownException(response.StatusCode, responseContent);
 		}
 	}
 }

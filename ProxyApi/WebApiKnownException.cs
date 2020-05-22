@@ -3,11 +3,11 @@
 	using System;
 	using System.Net;
 
-	public class WebApiResponseException : Exception
+	public class WebApiKnownException : Exception
 	{
 		public HttpStatusCode StatusCode { get; }
 
-		public WebApiResponseException(HttpStatusCode statusCode, string message) : base(message)
+		public WebApiKnownException(HttpStatusCode statusCode, string message) : base(message)
 		{
 			StatusCode = statusCode;
 		}

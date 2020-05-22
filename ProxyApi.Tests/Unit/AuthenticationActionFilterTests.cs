@@ -25,10 +25,11 @@
 		{
 			sut = new AuthenticationActionFilter();
 
-			var ac = new ActionContext(new DefaultHttpContext(), new RouteData(), new ActionDescriptor());
-
 			fakeContext = new ActionExecutingContext(
-				ac, Array.Empty<IFilterMetadata>(), new Dictionary<string, object>(), null);
+				new ActionContext(new DefaultHttpContext(), new RouteData(), new ActionDescriptor()),
+				Array.Empty<IFilterMetadata>(),
+				new Dictionary<string, object>(),
+				null);
 
 			fakeNext = Substitute.For<ActionExecutionDelegate>();
 		}

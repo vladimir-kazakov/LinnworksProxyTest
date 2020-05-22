@@ -1,7 +1,6 @@
 ﻿namespace ProxyApi.Tests.Unit
 {
 	using System;
-	using System.Collections.Generic;
 	using System.Linq;
 	using System.Net;
 	using System.Security.Claims;
@@ -12,7 +11,6 @@
 	using Microsoft.AspNetCore.Mvc;
 	using Models;
 	using NSubstitute;
-	using NSubstitute.ExceptionExtensions;
 	using NUnit.Framework;
 
 	[TestFixture]
@@ -65,10 +63,21 @@
 		[Test]
 		public void Controller_RequiresAuthentication()
 		{
-			var actual = sut.GetType().GetAttribute<ServiceFilterAttribute>();
+			var filters = sut.GetType().GetAttributes<ServiceFilterAttribute>();
 
-			Assert.That(actual, Is.Not.Null, "Attribute");
-			Assert.That(actual.ServiceType, Is.EqualTo(typeof(AuthenticationActionFilter)), nameof(actual.ServiceType));
+			var actual = filters.Where(f => f.ServiceType == typeof(AuthenticationActionFilter));
+
+			Assert.That(actual.Count(), Is.EqualTo(1));
+		}
+
+		[Test]
+		public void Controller_HandlesWebApiKnownExceptions()
+		{
+			var filters = sut.GetType().GetAttributes<ServiceFilterAttribute>();
+
+			var actual = filters.Where(f => f.ServiceType == typeof(WebApiKnownExceptionHandler));
+
+			Assert.That(actual.Count(), Is.EqualTo(1));
 		}
 
 		[Test]
@@ -78,43 +87,9 @@
 
 			fakeWebApi.GetCategoriesWithProductsCountAsync().Returns(expectedCategories);
 
-			var response = await sut.GetAsync();
-			var actual = response.Result as OkObjectResult;
+			var actual = await sut.GetAsync();
 
-			Assert.That(actual, Is.Not.Null, nameof(response.Result));
-
-			var actualCategories = actual.Value as IEnumerable<Category>;
-
-			Assert.That(actualCategories, Is.Not.Null, nameof(actual.Value));
-			Assert.That(actualCategories.Count(), Is.EqualTo(expectedCategories.Length), nameof(actual.Value));
-		}
-
-		[Test]
-		public async Task Get_WhenKnownExceptionHappens_PassesItThrough()
-		{
-			var expectedException = new WebApiResponseException(HttpStatusCode.Unauthorized, "test");
-
-			fakeWebApi.GetCategoriesWithProductsCountAsync().Throws(expectedException);
-
-			var response = await sut.GetAsync();
-			var actual = response.Result as ObjectResult;
-
-			Assert.That(actual, Is.Not.Null, nameof(response.Result));
-			Assert.That(actual.StatusCode, Is.EqualTo((int)expectedException.StatusCode), nameof(actual.StatusCode));
-			Assert.That(actual.Value, Is.EqualTo(expectedException.Message), nameof(actual.Value));
-		}
-
-		[Test]
-		public void Get_WhenUnknownExceptionHappens_ThrowsIt()
-		{
-			var expectedException = new Exception("test");
-
-			fakeWebApi.GetCategoriesWithProductsCountAsync().Throws(expectedException);
-
-			var actualException = Assert.ThrowsAsync(
-				expectedException.GetType(), async () => await sut.GetAsync(), "Type");
-
-			Assert.That(actualException.Message, Is.EqualTo(expectedException.Message), nameof(actualException.Message));
+			Assert.That(actual.Length, Is.EqualTo(expectedCategories.Length), nameof(actual.Length));
 		}
 
 		[Test]
@@ -154,34 +129,6 @@
 			Assert.That(actualError.Count, Is.EqualTo(sut.ModelState.ErrorCount), nameof(sut.ModelState.ErrorCount));
 			Assert.That(actualError.TryGetValue(invalidPropertyName, out var actualErrorMessages), Is.True, "PropertyName");
 			Assert.That(string.Join(string.Empty, (string[])actualErrorMessages), Is.EqualTo(expectedErrorMessage), "ErrorMessage");
-		}
-
-		[Test]
-		public async Task Post_WhenKnownExceptionHappens_PassesItThrough()
-		{
-			var expectedException = new WebApiResponseException(HttpStatusCode.Unauthorized, "test");
-
-			fakeWebApi.CreateNewCategoryAsync(Arg.Any<string>()).Throws(expectedException);
-
-			var response = await sut.PostAsync(new NewCategory());
-			var actual = response.Result as ObjectResult;
-
-			Assert.That(actual, Is.Not.Null, nameof(response.Result));
-			Assert.That(actual.StatusCode, Is.EqualTo((int)expectedException.StatusCode), nameof(actual.StatusCode));
-			Assert.That(actual.Value, Is.EqualTo(expectedException.Message), nameof(actual.Value));
-		}
-
-		[Test]
-		public void Post_WhenUnknownExceptionHappens_ThrowsIt()
-		{
-			var expectedException = new Exception("test");
-
-			fakeWebApi.CreateNewCategoryAsync(Arg.Any<string>()).Throws(expectedException);
-
-			var actualException = Assert.ThrowsAsync(
-				expectedException.GetType(), async () => await sut.PostAsync(new NewCategory()), "Type");
-
-			Assert.That(actualException.Message, Is.EqualTo(expectedException.Message), nameof(actualException.Message));
 		}
 	}
 }
