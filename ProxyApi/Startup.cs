@@ -22,6 +22,8 @@ namespace ProxyApi
 		{
 			services.Configure<ProxyOptions>(configuration);
 
+			services.AddScoped<AuthenticationActionFilter>();
+
 			services.AddControllersWithViews();
 
 			services.AddHttpClient<IWebApi, LinnworksWebApi>()

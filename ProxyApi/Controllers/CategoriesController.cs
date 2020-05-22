@@ -7,16 +7,11 @@
 	using Microsoft.AspNetCore.Mvc;
 	using Models;
 
-	[Route("[controller]")]
-	[ApiController]
+	[ApiController, Route("[controller]")]
+	[ServiceFilter(typeof(AuthenticationActionFilter))]
 	public class CategoriesController : ControllerBase
 	{
 		private readonly IWebApi webApi;
-
-		private static readonly string UnauthorizedErrorMessage =
-			"To access the API, provide an authorization token " +
-			$"(a GUID in the {Guid.Empty} format) " +
-			$"through the {HttpHeaderName.Authorization} HTTP request header.";
 
 		public CategoriesController(IWebApi webApi)
 		{
@@ -24,15 +19,13 @@
 		}
 
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<Category>>> GetAsync(
-			[FromHeader(Name = HttpHeaderName.Authorization)] Guid? authorizationToken = null)
+		public async Task<ActionResult<IEnumerable<Category>>> GetAsync()
 		{
-			if (!authorizationToken.HasValue)
-				return Unauthorized(UnauthorizedErrorMessage);
+			var authenticationToken = Guid.Parse(User.Identity.Name);
 
 			try
 			{
-				return Ok(await webApi.GetCategoriesWithProductsCountAsync(authorizationToken.Value));
+				return Ok(await webApi.GetCategoriesWithProductsCountAsync(authenticationToken));
 			}
 			catch (WebApiResponseException ex)
 			{
@@ -41,19 +34,16 @@
 		}
 
 		[HttpPost]
-		public async Task<ActionResult<Category>> PostAsync(
-			[FromHeader(Name = HttpHeaderName.Authorization)] Guid? authorizationToken,
-			[FromForm] NewCategory newCategory)
+		public async Task<ActionResult<Category>> PostAsync([FromForm] NewCategory newCategory)
 		{
-			if (!authorizationToken.HasValue)
-				return Unauthorized(UnauthorizedErrorMessage);
-
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
+			var authenticationToken = Guid.Parse(User.Identity.Name);
+
 			try
 			{
-				var category = await webApi.CreateNewCategoryAsync(authorizationToken.Value, newCategory.Name);
+				var category = await webApi.CreateNewCategoryAsync(authenticationToken, newCategory.Name);
 
 				// Since the Linnworks Web API doesn't have an endpoint to get a category by its ID,
 				// and the create new category endpoint also doesn't return the Location HTTP response header,

@@ -4,8 +4,11 @@
 	using System.Collections.Generic;
 	using System.Linq;
 	using System.Net;
+	using System.Security.Claims;
 	using System.Threading.Tasks;
+	using Castle.Core.Internal;
 	using Controllers;
+	using Microsoft.AspNetCore.Http;
 	using Microsoft.AspNetCore.Mvc;
 	using Models;
 	using NSubstitute;
@@ -24,7 +27,16 @@
 		{
 			fakeWebApi = Substitute.For<IWebApi>();
 
-			sut = new CategoriesController(fakeWebApi);
+			sut = new CategoriesController(fakeWebApi)
+			{
+				ControllerContext = new ControllerContext
+				{
+					HttpContext = new DefaultHttpContext
+					{
+						User = new ClaimsPrincipal(new AuthenticationTokenIdentity("0d3ed01c-e2f5-471e-aa3d-40c40a520ed1"))
+					}
+				}
+			};
 		}
 
 		private static Category[] GetTestCategories()
@@ -47,13 +59,22 @@
 		}
 
 		[Test]
+		public void Controller_RequiresAuthentication()
+		{
+			var actual = sut.GetType().GetAttribute<ServiceFilterAttribute>();
+
+			Assert.That(actual, Is.Not.Null, "Attribute");
+			Assert.That(actual.ServiceType, Is.EqualTo(typeof(AuthenticationActionFilter)), nameof(actual.ServiceType));
+		}
+
+		[Test]
 		public async Task Get_Normally_ReturnsAllCategories()
 		{
 			var expectedCategories = GetTestCategories();
 
 			fakeWebApi.GetCategoriesWithProductsCountAsync(Arg.Any<Guid>()).Returns(expectedCategories);
 
-			var response = await sut.GetAsync(Guid.Empty);
+			var response = await sut.GetAsync();
 			var actual = response.Result as OkObjectResult;
 
 			Assert.That(actual, Is.Not.Null, nameof(response.Result));
@@ -65,23 +86,13 @@
 		}
 
 		[Test]
-		public async Task Get_WithoutAuthorizationToken_Returns401()
-		{
-			var response = await sut.GetAsync();
-			var actual = response.Result as UnauthorizedObjectResult;
-
-			Assert.That(actual, Is.Not.Null, nameof(response.Result));
-			Assert.That(actual.Value, Does.Contain("provide an authorization token").IgnoreCase, nameof(actual.Value));
-		}
-
-		[Test]
 		public async Task Get_WhenKnownExceptionHappens_PassesItThrough()
 		{
 			var expectedException = new WebApiResponseException(HttpStatusCode.Unauthorized, "test");
 
 			fakeWebApi.GetCategoriesWithProductsCountAsync(Arg.Any<Guid>()).Throws(expectedException);
 
-			var response = await sut.GetAsync(Guid.Empty);
+			var response = await sut.GetAsync();
 			var actual = response.Result as ObjectResult;
 
 			Assert.That(actual, Is.Not.Null, nameof(response.Result));
@@ -97,7 +108,7 @@
 			fakeWebApi.GetCategoriesWithProductsCountAsync(Arg.Any<Guid>()).Throws(expectedException);
 
 			var actualException = Assert.ThrowsAsync(
-				expectedException.GetType(), async () => await sut.GetAsync(Guid.Empty), "Type");
+				expectedException.GetType(), async () => await sut.GetAsync(), "Type");
 
 			Assert.That(actualException.Message, Is.EqualTo(expectedException.Message), nameof(actualException.Message));
 		}
@@ -113,22 +124,12 @@
 
 			fakeWebApi.CreateNewCategoryAsync(Arg.Any<Guid>(), expectedCategory.Name).Returns(expectedCategory);
 
-			var response = await sut.PostAsync(Guid.Empty, new NewCategory { Name = expectedCategory.Name });
+			var response = await sut.PostAsync(new NewCategory { Name = expectedCategory.Name });
 			var actual = response.Result as ObjectResult;
 
 			Assert.That(actual, Is.Not.Null, nameof(response.Result));
 			Assert.That(actual.StatusCode, Is.EqualTo((int)HttpStatusCode.Created), nameof(actual.StatusCode));
 			Assert.That(actual.Value, Is.EqualTo(expectedCategory), nameof(actual.Value));
-		}
-
-		[Test]
-		public async Task Post_WithoutAuthorizationToken_Returns401()
-		{
-			var response = await sut.PostAsync(null, new NewCategory());
-			var actual = response.Result as UnauthorizedObjectResult;
-
-			Assert.That(actual, Is.Not.Null, nameof(response.Result));
-			Assert.That(actual.Value, Does.Contain("provide an authorization token").IgnoreCase, nameof(response.Value));
 		}
 
 		[Test]
@@ -139,7 +140,7 @@
 
 			sut.ModelState.AddModelError(invalidPropertyName, expectedErrorMessage);
 
-			var response = await sut.PostAsync(Guid.Empty, new NewCategory());
+			var response = await sut.PostAsync(new NewCategory());
 			var actual = response.Result as BadRequestObjectResult;
 
 			Assert.That(actual, Is.Not.Null, nameof(response.Result));
@@ -158,7 +159,7 @@
 
 			fakeWebApi.CreateNewCategoryAsync(Arg.Any<Guid>(), Arg.Any<string>()).Throws(expectedException);
 
-			var response = await sut.PostAsync(Guid.Empty, new NewCategory());
+			var response = await sut.PostAsync(new NewCategory());
 			var actual = response.Result as ObjectResult;
 
 			Assert.That(actual, Is.Not.Null, nameof(response.Result));
@@ -174,7 +175,7 @@
 			fakeWebApi.CreateNewCategoryAsync(Arg.Any<Guid>(), Arg.Any<string>()).Throws(expectedException);
 
 			var actualException = Assert.ThrowsAsync(
-				expectedException.GetType(), async () => await sut.PostAsync(Guid.Empty, new NewCategory()), "Type");
+				expectedException.GetType(), async () => await sut.PostAsync(new NewCategory()), "Type");
 
 			Assert.That(actualException.Message, Is.EqualTo(expectedException.Message), nameof(actualException.Message));
 		}
