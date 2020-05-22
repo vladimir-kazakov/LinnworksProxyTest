@@ -1,6 +1,5 @@
 ﻿namespace ProxyApi.Controllers
 {
-	using System;
 	using System.Collections.Generic;
 	using System.Net;
 	using System.Threading.Tasks;
@@ -11,21 +10,21 @@
 	[ServiceFilter(typeof(AuthenticationActionFilter))]
 	public class CategoriesController : ControllerBase
 	{
-		private readonly IWebApi webApi;
+		private readonly ILinnworksWebApiFactory webApiFactory;
 
-		public CategoriesController(IWebApi webApi)
+		public CategoriesController(ILinnworksWebApiFactory webApiFactory)
 		{
-			this.webApi = webApi;
+			this.webApiFactory = webApiFactory;
 		}
 
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<Category>>> GetAsync()
 		{
-			var authenticationToken = Guid.Parse(User.Identity.Name);
+			var webApi = webApiFactory.Create(User.Identity.Name);
 
 			try
 			{
-				return Ok(await webApi.GetCategoriesWithProductsCountAsync(authenticationToken));
+				return Ok(await webApi.GetCategoriesWithProductsCountAsync());
 			}
 			catch (WebApiResponseException ex)
 			{
@@ -39,11 +38,11 @@
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			var authenticationToken = Guid.Parse(User.Identity.Name);
+			var webApi = webApiFactory.Create(User.Identity.Name);
 
 			try
 			{
-				var category = await webApi.CreateNewCategoryAsync(authenticationToken, newCategory.Name);
+				var category = await webApi.CreateNewCategoryAsync(newCategory.Name);
 
 				// Since the Linnworks Web API doesn't have an endpoint to get a category by its ID,
 				// and the create new category endpoint also doesn't return the Location HTTP response header,

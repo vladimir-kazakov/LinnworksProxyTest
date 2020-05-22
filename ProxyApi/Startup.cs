@@ -7,6 +7,7 @@ namespace ProxyApi
 	using Microsoft.Extensions.Configuration;
 	using Microsoft.Extensions.DependencyInjection;
 	using Microsoft.Extensions.Hosting;
+	using Microsoft.Extensions.Options;
 	using Polly;
 
 	public class Startup
@@ -23,10 +24,11 @@ namespace ProxyApi
 			services.Configure<ProxyOptions>(configuration);
 
 			services.AddScoped<AuthenticationActionFilter>();
+			services.AddScoped<ILinnworksWebApiFactory, LinnworksWebApiFactory>();
 
 			services.AddControllersWithViews();
 
-			services.AddHttpClient<IWebApi, LinnworksWebApi>()
+			services.AddHttpClient(Options.DefaultName)
 				.AddTransientHttpErrorPolicy(p => p.WaitAndRetryAsync(3, _ => TimeSpan.FromSeconds(1)));
 
 			services.AddSpaStaticFiles(configuration =>

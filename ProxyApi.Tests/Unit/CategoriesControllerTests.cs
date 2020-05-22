@@ -27,7 +27,11 @@
 		{
 			fakeWebApi = Substitute.For<IWebApi>();
 
-			sut = new CategoriesController(fakeWebApi)
+			var fakeWebApiFactory = Substitute.For<ILinnworksWebApiFactory>();
+
+			fakeWebApiFactory.Create(Arg.Any<string>()).Returns(fakeWebApi);
+
+			sut = new CategoriesController(fakeWebApiFactory)
 			{
 				ControllerContext = new ControllerContext
 				{
@@ -72,7 +76,7 @@
 		{
 			var expectedCategories = GetTestCategories();
 
-			fakeWebApi.GetCategoriesWithProductsCountAsync(Arg.Any<Guid>()).Returns(expectedCategories);
+			fakeWebApi.GetCategoriesWithProductsCountAsync().Returns(expectedCategories);
 
 			var response = await sut.GetAsync();
 			var actual = response.Result as OkObjectResult;
@@ -90,7 +94,7 @@
 		{
 			var expectedException = new WebApiResponseException(HttpStatusCode.Unauthorized, "test");
 
-			fakeWebApi.GetCategoriesWithProductsCountAsync(Arg.Any<Guid>()).Throws(expectedException);
+			fakeWebApi.GetCategoriesWithProductsCountAsync().Throws(expectedException);
 
 			var response = await sut.GetAsync();
 			var actual = response.Result as ObjectResult;
@@ -105,7 +109,7 @@
 		{
 			var expectedException = new Exception("test");
 
-			fakeWebApi.GetCategoriesWithProductsCountAsync(Arg.Any<Guid>()).Throws(expectedException);
+			fakeWebApi.GetCategoriesWithProductsCountAsync().Throws(expectedException);
 
 			var actualException = Assert.ThrowsAsync(
 				expectedException.GetType(), async () => await sut.GetAsync(), "Type");
@@ -122,7 +126,7 @@
 				Name = "Test"
 			};
 
-			fakeWebApi.CreateNewCategoryAsync(Arg.Any<Guid>(), expectedCategory.Name).Returns(expectedCategory);
+			fakeWebApi.CreateNewCategoryAsync(expectedCategory.Name).Returns(expectedCategory);
 
 			var response = await sut.PostAsync(new NewCategory { Name = expectedCategory.Name });
 			var actual = response.Result as ObjectResult;
@@ -157,7 +161,7 @@
 		{
 			var expectedException = new WebApiResponseException(HttpStatusCode.Unauthorized, "test");
 
-			fakeWebApi.CreateNewCategoryAsync(Arg.Any<Guid>(), Arg.Any<string>()).Throws(expectedException);
+			fakeWebApi.CreateNewCategoryAsync(Arg.Any<string>()).Throws(expectedException);
 
 			var response = await sut.PostAsync(new NewCategory());
 			var actual = response.Result as ObjectResult;
@@ -172,7 +176,7 @@
 		{
 			var expectedException = new Exception("test");
 
-			fakeWebApi.CreateNewCategoryAsync(Arg.Any<Guid>(), Arg.Any<string>()).Throws(expectedException);
+			fakeWebApi.CreateNewCategoryAsync(Arg.Any<string>()).Throws(expectedException);
 
 			var actualException = Assert.ThrowsAsync(
 				expectedException.GetType(), async () => await sut.PostAsync(new NewCategory()), "Type");

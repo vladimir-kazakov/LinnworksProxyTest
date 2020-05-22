@@ -12,20 +12,26 @@
 
 	public class LinnworksWebApi : IWebApi
 	{
+		private readonly string authenticationToken;
 		private readonly HttpClient httpClient;
 
-		public LinnworksWebApi(HttpClient httpClient, IOptionsSnapshot<ProxyOptions> optionsSnapshot)
+		public LinnworksWebApi(
+			string authenticationToken,
+			IHttpClientFactory httpClientFactory,
+			IOptionsSnapshot<ProxyOptions> optionsSnapshot)
 		{
-			this.httpClient = httpClient;
+			this.authenticationToken = authenticationToken;
 
-			this.httpClient.BaseAddress = optionsSnapshot.Value.LinnWorksWebApiBaseUrl;
+			httpClient = httpClientFactory.CreateClient();
+
+			httpClient.BaseAddress = optionsSnapshot.Value.LinnWorksWebApiBaseUrl;
 		}
 
-		public async Task<IEnumerable<Category>> GetCategoriesAsync(Guid authorizationToken)
+		public async Task<Category[]> GetCategoriesAsync()
 		{
 			var requestMessage = new HttpRequestMessage(HttpMethod.Post, "Inventory/GetCategories");
 
-			requestMessage.Headers.Add(HttpHeaderName.Authorization, authorizationToken.ToString());
+			requestMessage.Headers.Add(HttpHeaderName.Authorization, authenticationToken);
 
 			var response = await httpClient.SendAsync(requestMessage);
 
@@ -39,7 +45,7 @@
 				{
 					Id = e.CategoryId,
 					Name = e.CategoryName
-				});
+				}).ToArray();
 			}
 
 			var content = await response.Content.ReadAsStringAsync();
@@ -47,14 +53,14 @@
 			throw new WebApiResponseException(response.StatusCode, content);
 		}
 
-		public async Task<IEnumerable<Dictionary<string, string>>> ExecuteCustomSqlQueryAsync(Guid authorizationToken, string sqlQuery)
+		public async Task<Dictionary<string, string>[]> ExecuteCustomSqlQueryAsync(string sqlQuery)
 		{
 			if (string.IsNullOrWhiteSpace(sqlQuery))
 				throw new ArgumentException("Provide the SQL query to execute.", nameof(sqlQuery));
 
 			var requestMessage = new HttpRequestMessage(HttpMethod.Post, "Dashboards/ExecuteCustomScriptQuery");
 
-			requestMessage.Headers.Add(HttpHeaderName.Authorization, authorizationToken.ToString());
+			requestMessage.Headers.Add(HttpHeaderName.Authorization, authenticationToken);
 
 			requestMessage.Content = new FormUrlEncodedContent(new[]
 			{
@@ -80,15 +86,15 @@
 			throw new WebApiResponseException(response.StatusCode, responseContent);
 		}
 
-		public async Task<IEnumerable<Category>> GetCategoriesWithProductsCountAsync(Guid authorizationToken)
+		public async Task<Category[]> GetCategoriesWithProductsCountAsync()
 		{
 			const string productsCountSql =
 				"SELECT c.CategoryId, Count(*) AS ProductsCount " +
 				"FROM StockItem AS i INNER JOIN ProductCategories AS c ON c.CategoryId = i.CategoryId " +
 				"GROUP BY c.CategoryId";
 
-			var categoriesTask = GetCategoriesAsync(authorizationToken);
-			var productsCountTask = ExecuteCustomSqlQueryAsync(authorizationToken, productsCountSql);
+			var categoriesTask = GetCategoriesAsync();
+			var productsCountTask = ExecuteCustomSqlQueryAsync(productsCountSql);
 
 			// It's done this way only because the test exercise explicitly requires it.
 			// It's actually possible to get all categories with the total amount of products in them in a single HTTP
@@ -113,17 +119,17 @@
 					category.ProductsCount = ulong.Parse(dictionary[nameof(Category.ProductsCount)]);
 			}
 
-			return categoriesWithProductsCount;
+			return categoriesWithProductsCount.ToArray();
 		}
 
-		public async Task<Category> CreateNewCategoryAsync(Guid authorizationToken, string categoryName)
+		public async Task<Category> CreateNewCategoryAsync(string categoryName)
 		{
 			if (string.IsNullOrWhiteSpace(categoryName))
 				throw new ArgumentException("Provide the new category name.", nameof(categoryName));
 
 			var requestMessage = new HttpRequestMessage(HttpMethod.Post, "Inventory/CreateCategory");
 
-			requestMessage.Headers.Add(HttpHeaderName.Authorization, authorizationToken.ToString());
+			requestMessage.Headers.Add(HttpHeaderName.Authorization, authenticationToken);
 
 			requestMessage.Content = new FormUrlEncodedContent(new[]
 			{
