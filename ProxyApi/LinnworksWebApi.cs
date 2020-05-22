@@ -115,5 +115,39 @@
 
 			return categoriesWithProductsCount;
 		}
+
+		public async Task<Category> CreateNewCategoryAsync(Guid authorizationToken, string categoryName)
+		{
+			if (string.IsNullOrWhiteSpace(categoryName))
+				throw new ArgumentException("Provide the new category name.", nameof(categoryName));
+
+			var requestMessage = new HttpRequestMessage(HttpMethod.Post, "Inventory/CreateCategory");
+
+			requestMessage.Headers.Add(HttpHeaderName.Authorization, authorizationToken.ToString());
+
+			requestMessage.Content = new FormUrlEncodedContent(new[]
+			{
+				new KeyValuePair<string, string>("categoryName", categoryName.Trim())
+			});
+
+			var response = await httpClient.SendAsync(requestMessage);
+
+			if (response.StatusCode == HttpStatusCode.OK)
+			{
+				var responseStream = await response.Content.ReadAsStreamAsync();
+
+				var entity = await JsonSerializer.DeserializeAsync<Entities.Category>(responseStream);
+
+				return new Category
+				{
+					Id = entity.CategoryId,
+					Name = entity.CategoryName
+				};
+			}
+
+			var responseContent = await response.Content.ReadAsStringAsync();
+
+			throw new WebApiResponseException(response.StatusCode, responseContent);
+		}
 	}
 }

@@ -10,5 +10,6 @@
 		Task<IEnumerable<Category>> GetCategoriesAsync(Guid authorizationToken);
 		Task<IEnumerable<Dictionary<string, string>>> ExecuteCustomSqlQueryAsync(Guid authorizationToken, string sqlQuery);
 		Task<IEnumerable<Category>> GetCategoriesWithProductsCountAsync(Guid authorizationToken);
+		Task<Category> CreateNewCategoryAsync(Guid authorizationToken, string categoryName);
 	}
 }
