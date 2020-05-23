@@ -1,0 +1,33 @@
+.actions {
+	text-align: right;
+}
+
+.actions button {
+	margin: 0.5em;
+	margin-right: 0;
+}
+
+.filter {
+	width: 100%;
+}
+
+.categories {
+	width: 100%;
+}
+
+.mat-row:nth-child(odd) {
+	background-color: whitesmoke;
+}
+
+.selected-row {
+	background-color: #FCE4EC !important;
+}
+
+.mat-column-select {
+	overflow: initial;
+	width: 5em;
+}
+
+.mat-column-productsCount {
+	width: 5em;
+}
