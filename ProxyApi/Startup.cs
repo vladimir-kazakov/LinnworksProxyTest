@@ -28,6 +28,18 @@ namespace ProxyApi
 
 			services.AddScoped<ILinnworksWebApiFactory, LinnworksWebApiFactory>();
 
+			services.AddCors(options =>
+			{
+				options.AddDefaultPolicy(builder =>
+				{
+					builder
+						.AllowAnyOrigin()
+						.AllowAnyMethod()
+						.AllowAnyHeader()
+						.SetPreflightMaxAge(TimeSpan.FromDays(1));
+				});
+			});
+
 			services.AddControllersWithViews();
 
 			services.AddHttpClient(Options.DefaultName)
@@ -59,6 +71,8 @@ namespace ProxyApi
 			}
 
 			app.UseRouting();
+
+			app.UseCors();
 
 			app.UseEndpoints(endpoints =>
 			{
