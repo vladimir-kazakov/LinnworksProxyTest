@@ -156,6 +156,27 @@
 			throw new WebApiKnownException(response.StatusCode, responseContent);
 		}
 
+		public async Task UpdateCategoryAsync(Entities.Category updatedCategory)
+		{
+			var requestMessage = new HttpRequestMessage(HttpMethod.Post, "Inventory/UpdateCategory");
+
+			requestMessage.Headers.Add(HttpHeaderName.Authorization, authenticationToken);
+
+			requestMessage.Content = new FormUrlEncodedContent(new[]
+			{
+				new KeyValuePair<string, string>("category", JsonSerializer.Serialize(updatedCategory))
+			});
+
+			var response = await httpClient.SendAsync(requestMessage);
+
+			if (response.StatusCode == HttpStatusCode.NoContent)
+				return;
+
+			var responseContent = await response.Content.ReadAsStringAsync();
+
+			throw new WebApiKnownException(response.StatusCode, responseContent);
+		}
+
 		public async Task DeleteCategoryAsync(Guid categoryId)
 		{
 			var requestMessage = new HttpRequestMessage(HttpMethod.Post, "Inventory/DeleteCategoryById");

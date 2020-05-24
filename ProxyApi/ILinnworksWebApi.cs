@@ -15,5 +15,7 @@
 		Task<Category[]> GetCategoriesWithProductsCountAsync();
 
 		Task<Dictionary<string, string>[]> ExecuteCustomSqlQueryAsync(string sqlQuery);
+
+		Task UpdateCategoryAsync(Entities.Category updatedCategory);
 	}
 }

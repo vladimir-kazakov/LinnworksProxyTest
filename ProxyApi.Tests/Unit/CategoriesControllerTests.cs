@@ -81,7 +81,7 @@
 		}
 
 		[Test]
-		public async Task Get_Normally_ReturnsAllCategories()
+		public async Task Get_Normally_ReturnsExistingCategories()
 		{
 			var expectedCategories = GetTestCategories();
 
@@ -112,7 +112,26 @@
 		}
 
 		[Test]
-		public async Task Delete_Normally_DeletesCategory()
+		public async Task Put_Normally_UpdatesExistingCategory()
+		{
+			var expected = new Entities.Category
+			{
+				CategoryId = Guid.Parse("96e2799e-e0e5-49e7-a44b-3858ce69d9f1"),
+				CategoryName = "Updated"
+			};
+
+			var response = await sut.PutAsync(expected.CategoryId, new UpdatedCategory { Name = expected.CategoryName });
+			var actual = response as NoContentResult;
+
+			Assert.That(actual, Is.Not.Null);
+
+			await fakeWebApi.Received(1).UpdateCategoryAsync(Arg.Is<Entities.Category>(actual =>
+				actual.CategoryId == expected.CategoryId &&
+				actual.CategoryName == expected.CategoryName));
+		}
+
+		[Test]
+		public async Task Delete_Normally_DeletesExistingCategory()
 		{
 			var expectedCategoryId = Guid.Parse("4a34cf09-6711-4aea-ab92-8ddcd9edbd4c");
 
