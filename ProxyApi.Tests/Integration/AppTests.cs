@@ -11,6 +11,8 @@
 	[TestFixture]
 	internal class AppTests
 	{
+		private const string CategoriesEndpointPath = "categories";
+
 		private HttpClient httpClient;
 
 		[SetUp]
@@ -22,6 +24,30 @@
 		}
 
 		[Test]
+		public async Task Get_ExistingPath_Succeeds()
+		{
+			var actual = await httpClient.GetAsync(CategoriesEndpointPath);
+
+			Assert.That(actual.StatusCode, Is.Not.EqualTo(HttpStatusCode.NotFound));
+		}
+
+		[Test]
+		public async Task Get_NotExistingPath_Returns404()
+		{
+			var actual = await httpClient.GetAsync("test");
+
+			Assert.That(actual.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
+		}
+
+		[Test]
+		public async Task Get_CategoriesWithoutAuthenticationToken_Returns401()
+		{
+			var actual = await httpClient.GetAsync(CategoriesEndpointPath);
+
+			Assert.That(actual.StatusCode, Is.EqualTo(HttpStatusCode.Unauthorized));
+		}
+
+		[Test]
 		public async Task Cors_IsEnabled()
 		{
 			const string expectedOrigin = "*";
@@ -29,7 +55,7 @@
 			const string expectedHeader = "test";
 			var expectedMaxAge = TimeSpan.FromDays(1).TotalSeconds.ToString();
 
-			var request = new HttpRequestMessage(HttpMethod.Options, "categories");
+			var request = new HttpRequestMessage(HttpMethod.Options, CategoriesEndpointPath);
 
 			request.Headers.Add(HttpHeaderName.Authorization, Guid.Empty.ToString());
 			request.Headers.Add(HeaderNames.Origin, "localhost");
