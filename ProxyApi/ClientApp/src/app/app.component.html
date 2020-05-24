@@ -2,4 +2,26 @@
 	<a class="navbar-brand" href="/">{{title}}</a>
 </nav>
 
-<app-categories></app-categories>
+<div *ngIf="isUserLoggedIn()">
+	<div class="text-break-word">
+		Hello, {{authenticationToken}} |
+		<a href="#" (click)="logout($event)">logout</a>
+	</div>
+	<app-categories></app-categories>
+</div>
+
+<div class="card mx-auto text-center card-authentication" *ngIf="!isUserLoggedIn()">
+	<div class="card-header">
+		Authentication required
+	</div>
+	<div class="card-body">
+		<p class="card-text">To see categories and be able to work with them, you must be logged in.</p>
+		<hr />
+		<p class="card-text text-muted">
+			You can log in by providing an authentication token, which is a
+			<abbr title="Globally Unique Identifier">GUID</abbr>
+			in the 00000000-0000-0000-0000-000000000000 format.
+		</p>
+		<button mat-raised-button color="primary" (click)="login()">Login</button>
+	</div>
+</div>

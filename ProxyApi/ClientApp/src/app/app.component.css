@@ -1,0 +1,12 @@
+nav.navbar, .login-info {
+	margin-bottom: 0.5rem;
+}
+
+.actions, .login-info {
+	text-align: right;
+}
+
+.card-authentication {
+	max-width: 20rem;
+	min-width: 12rem;
+}

@@ -1,0 +1,20 @@
+<h2 mat-dialog-title>Login</h2>
+<mat-dialog-content class="text-break-word">
+	<p>
+		Provide an authentication token, which is a
+		<abbr title="Globally Unique Identifier">GUID</abbr>
+		in the 00000000-0000-0000-0000-000000000000 format.
+	</p>
+	<mat-form-field class="authentication-token">
+		<input matInput placeholder="Authentication token" [formControl]="authenticationToken" maxlength="36" required>
+		<mat-error *ngIf="authenticationToken.invalid">{{getErrorMessage()}}</mat-error>
+	</mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+	<button mat-raised-button mat-dialog-close>Cancel</button>
+	<button mat-raised-button color="primary"
+	        [disabled]="authenticationToken.invalid"
+	        [mat-dialog-close]="authenticationToken.value">
+		Login
+	</button>
+</mat-dialog-actions>
