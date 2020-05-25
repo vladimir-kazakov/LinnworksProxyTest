@@ -34,4 +34,18 @@ export class CategoryService {
 			responseType: 'json'
 		}).pipe(retry(this.retryCount));
 	}
+
+	updateCategory(authenticationToken: string, updatedCategory: Category): Observable<any> {
+		let requestBody = new FormData();
+		requestBody.append('name', updatedCategory.name);
+
+		const url = `${this.endpointUrl}/${updatedCategory.id}`;
+
+		return this.httpClient.put(url, requestBody, {
+			headers: new HttpHeaders({
+				'Authorization': authenticationToken
+			}),
+			responseType: 'json'
+		}).pipe(retry(this.retryCount));
+	}
 }

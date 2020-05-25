@@ -6,8 +6,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { CategoriesComponent } from './categories/categories.component';
+import { CategoryDialogComponent } from './category-dialog/category-dialog.component';
 import { LoginDialogComponent } from './login-dialog/login-dialog.component';
-import { NewCategoryDialogComponent } from './new-category-dialog/new-category-dialog.component';
 
 // Angular Material.
 import { MatButtonModule } from '@angular/material/button';
@@ -23,12 +23,12 @@ import { MatTableModule } from '@angular/material/table';
 	declarations: [
 		AppComponent,
 		CategoriesComponent,
+		CategoryDialogComponent,
 		LoginDialogComponent,
-		NewCategoryDialogComponent,
 	],
 	entryComponents: [
+		CategoryDialogComponent,
 		LoginDialogComponent,
-		NewCategoryDialogComponent,
 	],
 	imports: [
 		BrowserModule,

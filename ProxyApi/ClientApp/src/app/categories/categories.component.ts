@@ -8,7 +8,7 @@ import { Category } from '../models/category';
 
 import { CategoryService } from '../services/category.service';
 
-import { NewCategoryDialogComponent } from '../new-category-dialog/new-category-dialog.component';
+import { CategoryDialogComponent, CategoryDialogData } from '../category-dialog/category-dialog.component';
 
 @Component({
 	selector: 'app-categories',
@@ -20,7 +20,7 @@ export class CategoriesComponent implements OnInit {
 
 	@Input() authenticationToken: string;
 
-	displayedColumns = ['select', 'name', 'productsCount'];
+	displayedColumns = ['select', 'name', 'editName', 'productsCount'];
 
 	dataSource: MatTableDataSource<Category>;
 	selection = new SelectionModel<Category>(true, []);
@@ -29,7 +29,7 @@ export class CategoriesComponent implements OnInit {
 
 	constructor(
 		private categoryService: CategoryService,
-		private newCategoryDialog: MatDialog) {
+		private categoryDialog: MatDialog) {
 	}
 
 	ngOnInit() {
@@ -49,6 +49,10 @@ export class CategoriesComponent implements OnInit {
 				this.dataRetrievalError += ' Try using a different authentication token.';
 			}
 		});
+	}
+
+	isDefault(category: Category): boolean {
+		return category.name.toLowerCase() == 'default';
 	}
 
 	applyFilter(term: string) {
@@ -79,22 +83,34 @@ export class CategoriesComponent implements OnInit {
 		return `${this.selection.isSelected(row) ? 'deselect' : 'select'} ${row.name}`;
 	}
 
-	toggleRowSelection(row: Category) {
-		if (this.selection.isSelected(row)) {
-			this.selection.deselect(row);
-		} else {
-			this.selection.select(row);
-		}
-	}
+	addCategory(): void {
+		const dialogData: CategoryDialogData = {
+			action: 'Add',
+			authenticationToken: this.authenticationToken,
+		};
 
-	addNewCategory(): void {
-		const dialogRef = this.newCategoryDialog.open(NewCategoryDialogComponent, {
-			data: this.authenticationToken
-		});
+		const dialogRef = this.categoryDialog.open(CategoryDialogComponent, { data: dialogData });
 
 		dialogRef.afterClosed().subscribe(result => {
 			if (result as Category) {
 				this.dataSource.data.push(result);
+				this.dataSource.filter = this.dataSource.filter;
+			}
+		});
+	}
+
+	editCategory(category: Category) {
+		const dialogData: CategoryDialogData = {
+			action: 'Edit',
+			authenticationToken: this.authenticationToken,
+			category: category,
+		};
+
+		const dialogRef = this.categoryDialog.open(CategoryDialogComponent, { data: dialogData });
+
+		dialogRef.afterClosed().subscribe(result => {
+			if (result as Category) {
+				category.name = result.name;
 				this.dataSource.filter = this.dataSource.filter;
 			}
 		});
