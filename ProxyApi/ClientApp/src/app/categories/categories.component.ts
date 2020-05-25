@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { SelectionModel } from '@angular/cdk/collections';
@@ -7,13 +8,15 @@ import { Category } from '../models/category';
 
 import { CategoryService } from '../services/category.service';
 
+import { NewCategoryDialogComponent } from '../new-category-dialog/new-category-dialog.component';
+
 @Component({
 	selector: 'app-categories',
 	templateUrl: './categories.component.html',
 	styleUrls: ['./categories.component.css']
 })
 export class CategoriesComponent implements OnInit {
-	@ViewChild(MatSort, { static: true }) sort: MatSort;
+	@ViewChild(MatSort, { static: false }) sort: MatSort;
 
 	@Input() authenticationToken: string;
 
@@ -24,7 +27,10 @@ export class CategoriesComponent implements OnInit {
 
 	dataRetrievalError: string;
 
-	constructor(private categoryService: CategoryService) { }
+	constructor(
+		private categoryService: CategoryService,
+		private newCategoryDialog: MatDialog) {
+	}
 
 	ngOnInit() {
 		this.categoryService.getCategories(this.authenticationToken).subscribe(data => {
@@ -79,5 +85,18 @@ export class CategoriesComponent implements OnInit {
 		} else {
 			this.selection.select(row);
 		}
+	}
+
+	addNewCategory(): void {
+		const dialogRef = this.newCategoryDialog.open(NewCategoryDialogComponent, {
+			data: this.authenticationToken
+		});
+
+		dialogRef.afterClosed().subscribe(result => {
+			if (result as Category) {
+				this.dataSource.data.push(result);
+				this.dataSource.filter = this.dataSource.filter;
+			}
+		});
 	}
 }

@@ -9,14 +9,29 @@ import { Category } from '../models/category';
 	providedIn: 'root'
 })
 export class CategoryService {
+	private readonly endpointUrl = '/categories';
+	private readonly retryCount = 3;
+
 	constructor(private httpClient: HttpClient) { }
 
-	getCategories(authenticationToken: string): Observable<Category[]> {
-		return this.httpClient.get<Category[]>('/categories', {
+	addCategory(authenticationToken: string, categoryName: string): Observable<Category> {
+		let requestBody = new FormData();
+		requestBody.append('name', categoryName);
+
+		return this.httpClient.post<Category>(this.endpointUrl, requestBody, {
 			headers: new HttpHeaders({
 				'Authorization': authenticationToken
 			}),
 			responseType: 'json'
-		}).pipe(retry(3));
+		}).pipe(retry(this.retryCount));
+	}
+
+	getCategories(authenticationToken: string): Observable<Category[]> {
+		return this.httpClient.get<Category[]>(this.endpointUrl, {
+			headers: new HttpHeaders({
+				'Authorization': authenticationToken
+			}),
+			responseType: 'json'
+		}).pipe(retry(this.retryCount));
 	}
 }

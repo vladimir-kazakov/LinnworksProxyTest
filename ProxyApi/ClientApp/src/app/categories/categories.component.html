@@ -4,7 +4,7 @@
 
 <div *ngIf="dataRetrievalError == null">
 	<div class="actions">
-		<button mat-raised-button color="primary"><mat-icon>add</mat-icon>Add New</button>
+		<button mat-raised-button color="primary" (click)="addNewCategory()"><mat-icon>add</mat-icon>Add New</button>
 		<button mat-raised-button color="warn"><mat-icon>delete</mat-icon>Delete</button>
 	</div>
 	

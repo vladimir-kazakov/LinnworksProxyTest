@@ -5,7 +5,7 @@
 		<abbr title="Globally Unique Identifier">GUID</abbr>
 		in the 00000000-0000-0000-0000-000000000000 format.
 	</p>
-	<mat-form-field class="authentication-token">
+	<mat-form-field class="width-full">
 		<input matInput placeholder="Authentication token" [formControl]="authenticationToken" maxlength="36" required>
 		<mat-error *ngIf="authenticationToken.invalid">{{getErrorMessage()}}</mat-error>
 	</mat-form-field>
