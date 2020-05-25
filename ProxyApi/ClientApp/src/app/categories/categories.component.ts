@@ -1,16 +1,11 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { SelectionModel } from '@angular/cdk/collections';
 
 import { Category } from '../models/category';
 
-const SAMPLE_DATA: Category[] = [
-	{ id: "00000000-0000-0000-0000-000000000000", name: "Default", productsCount: 5 },
-	{ id: "36b0fa5b-7d41-4ce2-b3b8-add926a380cf", name: "Guitars", productsCount: 17 },
-	{ id: "af39e9a4-1a74-4122-b5fd-08d6e9baa407", name: "Motorcycles", productsCount: 3 },
-	{ id: "c5178f5b-bb83-4c0b-8589-927275d8bf71", name: "Nothing", productsCount: 0 },
-];
+import { CategoryService } from '../services/category.service';
 
 @Component({
 	selector: 'app-categories',
@@ -20,13 +15,34 @@ const SAMPLE_DATA: Category[] = [
 export class CategoriesComponent implements OnInit {
 	@ViewChild(MatSort, { static: true }) sort: MatSort;
 
+	@Input() authenticationToken: string;
+
 	displayedColumns = ['select', 'name', 'productsCount'];
 
-	dataSource = new MatTableDataSource(SAMPLE_DATA);
+	dataSource: MatTableDataSource<Category>;
 	selection = new SelectionModel<Category>(true, []);
 
+	dataRetrievalError: string;
+
+	constructor(private categoryService: CategoryService) { }
+
 	ngOnInit() {
-		this.dataSource.sort = this.sort;
+		this.categoryService.getCategories(this.authenticationToken).subscribe(data => {
+			this.dataSource = new MatTableDataSource(data);
+
+			this.dataSource.sort = this.sort;
+		}, error => {
+			this.dataRetrievalError =
+				`HTTP status code: ${error.status} (${error.statusText}).`;
+
+			if (error.error.Message) {
+				this.dataRetrievalError += ` Reason: ${error.error.Message}`;
+			}
+
+			if (error.status == 401) {
+				this.dataRetrievalError += ' Try using a different authentication token.';
+			}
+		});
 	}
 
 	applyFilter(term: string) {

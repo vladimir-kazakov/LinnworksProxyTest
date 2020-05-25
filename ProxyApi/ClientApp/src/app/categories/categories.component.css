@@ -3,20 +3,12 @@
 }
 
 .actions button {
-	margin: 0.5em;
-	margin-right: 0;
+	margin-left: 0.5em;
+	margin-bottom: 0.5em;
 }
 
 .filter {
 	width: 100%;
-}
-
-.categories {
-	width: 100%;
-}
-
-.mat-row:nth-child(odd) {
-	background-color: whitesmoke;
 }
 
 .selected-row {
@@ -25,9 +17,14 @@
 
 .mat-column-select {
 	overflow: initial;
-	width: 5em;
+	min-width: 4em;
+}
+
+.mat-column-name {
+	min-width: 10em;
+	width: 100%;
 }
 
 .mat-column-productsCount {
-	width: 5em;
+	min-width: 4em;
 }

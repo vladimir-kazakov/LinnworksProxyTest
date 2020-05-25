@@ -3,11 +3,10 @@
 </nav>
 
 <div *ngIf="isUserLoggedIn()">
-	<div class="text-break-word">
-		Hello, {{authenticationToken}} |
-		<a href="#" (click)="logout($event)">logout</a>
+	<div class="login-info text-break-word">
+		Hello, {{authenticationToken}} | <a href="#" (click)="logout($event)">logout</a>
 	</div>
-	<app-categories></app-categories>
+	<app-categories [authenticationToken]="authenticationToken"></app-categories>
 </div>
 
 <div class="card mx-auto text-center card-authentication" *ngIf="!isUserLoggedIn()">
