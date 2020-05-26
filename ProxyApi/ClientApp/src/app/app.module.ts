@@ -7,6 +7,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { CategoriesComponent } from './categories/categories.component';
 import { CategoryDialogComponent } from './category-dialog/category-dialog.component';
+import { DeleteCategoryDialogComponent } from './delete-category-dialog/delete-category-dialog.component';
 import { LoginDialogComponent } from './login-dialog/login-dialog.component';
 
 // Angular Material.
@@ -24,10 +25,12 @@ import { MatTableModule } from '@angular/material/table';
 		AppComponent,
 		CategoriesComponent,
 		CategoryDialogComponent,
+		DeleteCategoryDialogComponent,
 		LoginDialogComponent,
 	],
 	entryComponents: [
 		CategoryDialogComponent,
+		DeleteCategoryDialogComponent,
 		LoginDialogComponent,
 	],
 	imports: [

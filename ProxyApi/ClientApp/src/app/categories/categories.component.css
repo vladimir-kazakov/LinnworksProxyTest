@@ -7,10 +7,6 @@
 	margin-bottom: 0.5em;
 }
 
-.filter {
-	width: 100%;
-}
-
 .selected-row {
 	background-color: #FCE4EC !important;
 }

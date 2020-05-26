@@ -10,3 +10,7 @@ body {
 .text-break-word {
 	word-break: break-word;
 }
+
+.width-full {
+	width: 100%;
+}

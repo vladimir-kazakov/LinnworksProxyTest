@@ -45,7 +45,16 @@ export class CategoryService {
 			headers: new HttpHeaders({
 				'Authorization': authenticationToken
 			}),
-			responseType: 'json'
+		}).pipe(retry(this.retryCount));
+	}
+
+	deleteCategory(authenticationToken: string, categoryId: string): Observable<any> {
+		const url = `${this.endpointUrl}/${categoryId}`;
+
+		return this.httpClient.delete(url, {
+			headers: new HttpHeaders({
+				'Authorization': authenticationToken
+			}),
 		}).pipe(retry(this.retryCount));
 	}
 }

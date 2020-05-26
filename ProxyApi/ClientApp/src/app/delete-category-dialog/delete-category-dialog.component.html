@@ -1,0 +1,19 @@
+<h2 mat-dialog-title>Delete Categories</h2>
+<mat-dialog-content>
+	Are you sure you want to delete the following categories?
+
+	<ul>
+		<li *ngFor="let category of dialogData.categories">{{category.name}}</li>
+	</ul>
+
+	<div class="alert alert-danger" *ngFor="let error of errors" role="alert">
+		{{error}}
+	</div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+	<button mat-raised-button mat-dialog-close>Cancel</button>
+	<button mat-raised-button color="warn" cdkFocusInitial
+	        (click)="deleteCategories()">
+		Delete
+	</button>
+</mat-dialog-actions>

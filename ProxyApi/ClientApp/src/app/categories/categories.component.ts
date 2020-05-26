@@ -9,6 +9,7 @@ import { Category } from '../models/category';
 import { CategoryService } from '../services/category.service';
 
 import { CategoryDialogComponent, CategoryDialogData } from '../category-dialog/category-dialog.component';
+import { DeleteCategoryDialogComponent, DeleteCategoryDialogData } from '../delete-category-dialog/delete-category-dialog.component';
 
 @Component({
 	selector: 'app-categories',
@@ -29,7 +30,7 @@ export class CategoriesComponent implements OnInit {
 
 	constructor(
 		private categoryService: CategoryService,
-		private categoryDialog: MatDialog) {
+		private dialog: MatDialog) {
 	}
 
 	ngOnInit() {
@@ -55,24 +56,34 @@ export class CategoriesComponent implements OnInit {
 		return category.name.toLowerCase() == 'default';
 	}
 
-	applyFilter(term: string) {
+	applyFilter(term: string): void {
 		this.dataSource.filter = term.trim().toLowerCase();
 	}
 
-	clearFilter(filter: HTMLInputElement) {
+	clearFilter(filter: HTMLInputElement): void {
 		this.dataSource.filter = filter.value = '';
 	}
 
-	isAllSelected() {
-		const numSelected = this.selection.selected.length;
-		const numRows = this.dataSource.data.length;
-		return numSelected === numRows;
+	isAllSelected(): boolean {
+		const selectedCount = this.selection.selected.length;
+		const selectableCount = this.dataSource.data.filter(c => !this.isDefault(c)).length;
+		return selectedCount == selectableCount;
 	}
 
-	masterToggle() {
-		this.isAllSelected() ?
-			this.selection.clear() :
-			this.dataSource.data.forEach(row => this.selection.select(row));
+	isAnythingSelected(): boolean {
+		return this.selection.selected.length > 0;
+	}
+
+	masterToggle(): void {
+		if (this.isAllSelected()) {
+			this.selection.clear();
+		} else {
+			this.dataSource.data.forEach(c => {
+				if (!this.isDefault(c)) {
+					this.selection.select(c);
+				}
+			})
+		}
 	}
 
 	checkboxLabel(row?: Category): string {
@@ -89,7 +100,7 @@ export class CategoriesComponent implements OnInit {
 			authenticationToken: this.authenticationToken,
 		};
 
-		const dialogRef = this.categoryDialog.open(CategoryDialogComponent, { data: dialogData });
+		const dialogRef = this.dialog.open(CategoryDialogComponent, { data: dialogData });
 
 		dialogRef.afterClosed().subscribe(result => {
 			if (result as Category) {
@@ -99,18 +110,44 @@ export class CategoriesComponent implements OnInit {
 		});
 	}
 
-	editCategory(category: Category) {
+	editCategory(category: Category): void {
 		const dialogData: CategoryDialogData = {
 			action: 'Edit',
 			authenticationToken: this.authenticationToken,
 			category: category,
 		};
 
-		const dialogRef = this.categoryDialog.open(CategoryDialogComponent, { data: dialogData });
+		const dialogRef = this.dialog.open(CategoryDialogComponent, { data: dialogData });
 
 		dialogRef.afterClosed().subscribe(result => {
 			if (result as Category) {
 				category.name = result.name;
+				this.dataSource.filter = this.dataSource.filter;
+			}
+		});
+	}
+
+	deleteSelectedCategories(): void {
+		const dialogData: DeleteCategoryDialogData = {
+			authenticationToken: this.authenticationToken,
+			categories: this.selection.selected.filter(c => !this.isDefault(c)).sort((a, b) => {
+				return a.name.localeCompare(b.name);
+			}),
+		};
+
+		const dialogRef = this.dialog.open(DeleteCategoryDialogComponent, { data: dialogData });
+
+		dialogRef.afterClosed().subscribe(result => {
+			if (result as Category[]) {
+				result.forEach(c => {
+					const index = this.dataSource.data.findIndex(i => i.name == c.name);
+
+					if (index > -1) {
+						this.dataSource.data.splice(index, 1);
+					}
+				});
+
+				this.selection.clear();
 				this.dataSource.filter = this.dataSource.filter;
 			}
 		});
