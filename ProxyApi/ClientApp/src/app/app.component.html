@@ -6,10 +6,15 @@
 	<div class="login-info text-break-word">
 		Hello, {{authenticationToken}} | <a href="#" (click)="logout($event)">logout</a>
 	</div>
+
+	<div *ngIf="isDemoUser()" class="alert alert-warning" role="alert">
+		You're logged in as a demo user. You're working with fake data that is not related to Linnworks.
+	</div>
+
 	<app-categories [authenticationToken]="authenticationToken"></app-categories>
 </div>
 
-<div class="card mx-auto text-center card-authentication" *ngIf="!isUserLoggedIn()">
+<div *ngIf="!isUserLoggedIn()" class="card mx-auto text-center card-authentication">
 	<div class="card-header">
 		Authentication required
 	</div>

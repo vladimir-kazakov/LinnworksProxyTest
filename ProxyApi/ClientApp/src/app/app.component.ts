@@ -24,6 +24,10 @@ export class AppComponent implements OnInit {
 		return this.authenticationToken != null && this.authenticationToken.trim() != '';
 	}
 
+	isDemoUser(): boolean {
+		return this.authenticationToken == '00000000-0000-0000-0000-000000000000';
+	}
+
 	login(): void {
 		const dialogRef = this.loginDialog.open(LoginDialogComponent);
 
