@@ -15,36 +15,24 @@ export class CategoryService {
 	constructor(private httpClient: HttpClient) { }
 
 	addCategory(authenticationToken: string, categoryName: string): Observable<Category> {
-		let requestBody = new FormData();
-		requestBody.append('name', categoryName);
-
-		return this.httpClient.post<Category>(this.endpointUrl, requestBody, {
-			headers: new HttpHeaders({
-				'Authorization': authenticationToken
-			}),
-			responseType: 'json'
+		return this.httpClient.post<Category>(this.endpointUrl, { name: categoryName }, {
+			headers: new HttpHeaders({ 'Authorization': authenticationToken }),
+			responseType: 'json',
 		}).pipe(retry(this.retryCount));
 	}
 
 	getCategories(authenticationToken: string): Observable<Category[]> {
 		return this.httpClient.get<Category[]>(this.endpointUrl, {
-			headers: new HttpHeaders({
-				'Authorization': authenticationToken
-			}),
-			responseType: 'json'
+			headers: new HttpHeaders({ 'Authorization': authenticationToken }),
+			responseType: 'json',
 		}).pipe(retry(this.retryCount));
 	}
 
 	updateCategory(authenticationToken: string, updatedCategory: Category): Observable<any> {
-		let requestBody = new FormData();
-		requestBody.append('name', updatedCategory.name);
-
 		const url = `${this.endpointUrl}/${updatedCategory.id}`;
 
-		return this.httpClient.put(url, requestBody, {
-			headers: new HttpHeaders({
-				'Authorization': authenticationToken
-			}),
+		return this.httpClient.put(url, updatedCategory, {
+			headers: new HttpHeaders({ 'Authorization': authenticationToken }),
 		}).pipe(retry(this.retryCount));
 	}
 
@@ -52,9 +40,7 @@ export class CategoryService {
 		const url = `${this.endpointUrl}/${categoryId}`;
 
 		return this.httpClient.delete(url, {
-			headers: new HttpHeaders({
-				'Authorization': authenticationToken
-			}),
+			headers: new HttpHeaders({ 'Authorization': authenticationToken }),
 		}).pipe(retry(this.retryCount));
 	}
 }

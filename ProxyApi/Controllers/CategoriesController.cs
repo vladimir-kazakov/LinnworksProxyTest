@@ -32,7 +32,7 @@
 		}
 
 		[HttpPost]
-		public async Task<ActionResult<Category>> PostAsync([FromForm] NewCategory newCategory)
+		public async Task<ActionResult<Category>> PostAsync(NewCategory newCategory)
 		{
 			var webApi = webApiFactory.Create(User.Identity.Name);
 
@@ -43,7 +43,7 @@
 		}
 
 		[HttpPut("{id}")]
-		public async Task<IActionResult> PutAsync(Guid id, [FromForm] UpdatedCategory updatedCategory)
+		public async Task<IActionResult> PutAsync(Guid id, UpdatedCategory updatedCategory)
 		{
 			var webApi = webApiFactory.Create(User.Identity.Name);
 
