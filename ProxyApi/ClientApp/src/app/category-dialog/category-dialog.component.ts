@@ -6,9 +6,14 @@ import { Category } from '../models/category';
 
 import { CategoryService } from '../services/category.service';
 
+export enum CategoryDialogAction {
+	Add = 'Add',
+	Edit = 'Edit',
+}
+
 export interface CategoryDialogData {
 	authenticationToken: string;
-	action: string;
+	action: CategoryDialogAction;
 	category?: Category;
 }
 
@@ -39,11 +44,9 @@ export class CategoryDialogComponent implements OnInit {
 	}
 
 	performAction(): void {
-		const action = this.dialogData.action.toLowerCase();
-
-		if (action == 'add') {
+		if (this.dialogData.action == CategoryDialogAction.Add) {
 			this.addCategory();
-		} else if (action == 'edit') {
+		} else if (this.dialogData.action == CategoryDialogAction.Edit) {
 			this.editCategory();
 		}
 	}

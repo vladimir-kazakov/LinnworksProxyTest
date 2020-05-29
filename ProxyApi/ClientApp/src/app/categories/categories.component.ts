@@ -8,7 +8,7 @@ import { Category } from '../models/category';
 
 import { CategoryService } from '../services/category.service';
 
-import { CategoryDialogComponent, CategoryDialogData } from '../category-dialog/category-dialog.component';
+import { CategoryDialogAction, CategoryDialogComponent, CategoryDialogData } from '../category-dialog/category-dialog.component';
 import { DeleteCategoryDialogComponent, DeleteCategoryDialogData } from '../delete-category-dialog/delete-category-dialog.component';
 
 @Component({
@@ -103,7 +103,7 @@ export class CategoriesComponent implements OnInit {
 
 	addCategory(): void {
 		const dialogData: CategoryDialogData = {
-			action: 'Add',
+			action: CategoryDialogAction.Add,
 			authenticationToken: this.authenticationToken,
 		};
 
@@ -119,7 +119,7 @@ export class CategoriesComponent implements OnInit {
 
 	editCategory(category: Category): void {
 		const dialogData: CategoryDialogData = {
-			action: 'Edit',
+			action: CategoryDialogAction.Edit,
 			authenticationToken: this.authenticationToken,
 			category: category,
 		};
