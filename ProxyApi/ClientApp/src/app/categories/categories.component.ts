@@ -37,6 +37,13 @@ export class CategoriesComponent implements OnInit {
 		this.categoryService.getCategories(this.authenticationToken).subscribe(data => {
 			this.dataSource = new MatTableDataSource(data);
 
+			this.dataSource.filterPredicate = (category, filter) => {
+				var categoryNameMatches = category.name.toLowerCase().indexOf(filter.toLowerCase()) > -1;
+				var productsCountMatches = category.productsCount.toString().indexOf(filter) > -1;
+
+				return categoryNameMatches || productsCountMatches;
+			};
+
 			this.dataSource.sort = this.sort;
 		}, error => {
 			this.dataRetrievalError =
