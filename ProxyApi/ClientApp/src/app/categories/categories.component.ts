@@ -44,6 +44,16 @@ export class CategoriesComponent implements OnInit {
 				return categoryNameMatches || productsCountMatches;
 			};
 
+			// By default, sorting is case sensitive, which may be confusing for the user.
+			// Let's make it case insensitive, to make it more understandable.
+			this.dataSource.sortingDataAccessor = (data: any, sortHeaderId: string): string => {
+				if (typeof data[sortHeaderId] == 'string') {
+					return data[sortHeaderId].toLocaleLowerCase();
+				}
+
+				return data[sortHeaderId];
+			};
+
 			this.dataSource.sort = this.sort;
 		}, error => {
 			this.dataRetrievalError =
