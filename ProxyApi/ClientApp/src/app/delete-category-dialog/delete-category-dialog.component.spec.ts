@@ -1,4 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientModule } from '@angular/common/http';
+
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { DeleteCategoryDialogComponent } from './delete-category-dialog.component';
 
@@ -8,9 +11,18 @@ describe('DeleteCategoryDialogComponent', () => {
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [DeleteCategoryDialogComponent]
-		})
-			.compileComponents();
+			imports: [
+				HttpClientModule,
+				MatDialogModule,
+			],
+			declarations: [
+				DeleteCategoryDialogComponent,
+			],
+			providers: [
+				{ provide: MatDialogRef, useValue: {} },
+				{ provide: MAT_DIALOG_DATA, useValue: {} },
+			],
+		}).compileComponents();
 	}));
 
 	beforeEach(() => {

@@ -1,4 +1,10 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { ReactiveFormsModule } from '@angular/forms';
+
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material';
+import { MatInputModule } from '@angular/material/input';
 
 import { LoginDialogComponent } from './login-dialog.component';
 
@@ -8,9 +14,17 @@ describe('LoginDialogComponent', () => {
 
 	beforeEach(async(() => {
 		TestBed.configureTestingModule({
-			declarations: [LoginDialogComponent]
-		})
-			.compileComponents();
+			imports: [
+				NoopAnimationsModule,
+				ReactiveFormsModule,
+				MatDialogModule,
+				MatFormFieldModule,
+				MatInputModule,
+			],
+			declarations: [
+				LoginDialogComponent,
+			],
+		}).compileComponents();
 	}));
 
 	beforeEach(() => {

@@ -14,7 +14,7 @@ export class AppComponent implements OnInit {
 	title = 'Linnworks Categories';
 	authenticationToken: string;
 
-	constructor(public loginDialog: MatDialog) { }
+	constructor(private loginDialog: MatDialog) { }
 
 	ngOnInit(): void {
 		this.authenticationToken = sessionStorage.getItem(this.authenticationTokenStorageKey);

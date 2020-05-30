@@ -10,11 +10,10 @@ import { CategoryDialogComponent } from './category-dialog/category-dialog.compo
 import { DeleteCategoryDialogComponent } from './delete-category-dialog/delete-category-dialog.component';
 import { LoginDialogComponent } from './login-dialog/login-dialog.component';
 
-// Angular Material.
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material'
+import { MatFormFieldModule } from '@angular/material';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSortModule } from '@angular/material/sort';
@@ -39,7 +38,6 @@ import { MatTableModule } from '@angular/material/table';
 		HttpClientModule,
 		ReactiveFormsModule,
 
-		// Angular Material.
 		MatButtonModule,
 		MatCheckboxModule,
 		MatDialogModule,
