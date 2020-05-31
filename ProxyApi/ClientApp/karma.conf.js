@@ -13,7 +13,7 @@ module.exports = function (config) {
 			clearContext: false // Leave Jasmine Spec Runner output visible in browser.
 		},
 		coverageIstanbulReporter: {
-			dir: require('path').join(__dirname, './coverage/Version8'),
+			dir: require('path').join(__dirname, './coverage/ProxyApi'),
 			reports: ['html', 'lcovonly', 'text-summary'],
 			fixWebpackSourcePaths: true
 		},
