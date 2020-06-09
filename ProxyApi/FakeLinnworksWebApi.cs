@@ -52,7 +52,7 @@
 		{
 			categories.RemoveAll(c => c.Id == categoryId);
 
-			return Task.FromResult(0);
+			return Task.CompletedTask;
 		}
 
 		public Task<Dictionary<string, string>[]> ExecuteCustomSqlQueryAsync(string sqlQuery)
@@ -90,7 +90,7 @@
 
 			categoryToUpdate.Name = updatedCategory.CategoryName;
 
-			return Task.FromResult(0);
+			return Task.CompletedTask;
 		}
 	}
 }
