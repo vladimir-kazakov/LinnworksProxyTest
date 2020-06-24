@@ -3,13 +3,12 @@
 	using System;
 	using System.Net;
 	using System.Security.Claims;
-	using System.Threading.Tasks;
 	using Microsoft.AspNetCore.Mvc;
 	using Microsoft.AspNetCore.Mvc.Filters;
 
-	public class AuthenticationActionFilter : IAsyncActionFilter
+	public sealed class RequireAuthenticationTokenAttribute : Attribute, IAuthorizationFilter
 	{
-		public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+		public void OnAuthorization(AuthorizationFilterContext context)
 		{
 			if (!context.HttpContext.Request.Headers.TryGetValue(HttpHeaderName.Authorization, out var values))
 			{
@@ -23,7 +22,7 @@
 
 			var authenticationToken = string.Join(string.Empty, values);
 
-			if (!Guid.TryParse(authenticationToken, out _))
+			if (!Guid.TryParseExact(authenticationToken, "D", out _))
 			{
 				context.Result = new ObjectResult(
 					$"The value of the {HttpHeaderName.Authorization} HTTP request header " +
@@ -36,8 +35,6 @@
 			}
 
 			context.HttpContext.User = new ClaimsPrincipal(new AuthenticationTokenIdentity(authenticationToken));
-
-			await next();
 		}
 	}
 }

@@ -61,13 +61,11 @@
 		}
 
 		[Test]
-		public void Controller_RequiresAuthentication()
+		public void Controller_RequiresAuthenticationToken()
 		{
-			var filters = sut.GetType().GetAttributes<ServiceFilterAttribute>();
+			var actual = sut.GetType().GetAttribute<RequireAuthenticationTokenAttribute>();
 
-			var actual = filters.Where(f => f.ServiceType == typeof(AuthenticationActionFilter));
-
-			Assert.That(actual.Count(), Is.EqualTo(1));
+			Assert.That(actual, Is.Not.Null);
 		}
 
 		[Test]

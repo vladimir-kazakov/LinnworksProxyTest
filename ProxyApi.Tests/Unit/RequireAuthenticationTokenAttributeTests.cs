@@ -1,84 +1,70 @@
 ﻿namespace ProxyApi.Tests.Unit
 {
 	using System;
-	using System.Collections.Generic;
 	using System.Net;
-	using System.Threading.Tasks;
 	using Microsoft.AspNetCore.Http;
 	using Microsoft.AspNetCore.Mvc;
 	using Microsoft.AspNetCore.Mvc.Abstractions;
 	using Microsoft.AspNetCore.Mvc.Filters;
 	using Microsoft.AspNetCore.Routing;
-	using NSubstitute;
 	using NUnit.Framework;
 
 	[TestFixture]
-	internal class AuthenticationActionFilterTests
+	internal class RequireAuthenticationTokenAttributeTests
 	{
-		private AuthenticationActionFilter sut;
+		private RequireAuthenticationTokenAttribute sut;
 
-		private ActionExecutingContext fakeContext;
-		private ActionExecutionDelegate fakeNext;
+		private AuthorizationFilterContext fakeContext;
 
 		[SetUp]
 		public void BeforeEachTest()
 		{
-			sut = new AuthenticationActionFilter();
+			sut = new RequireAuthenticationTokenAttribute();
 
-			fakeContext = new ActionExecutingContext(
+			fakeContext = new AuthorizationFilterContext(
 				new ActionContext(new DefaultHttpContext(), new RouteData(), new ActionDescriptor()),
-				Array.Empty<IFilterMetadata>(),
-				new Dictionary<string, object>(),
-				null);
-
-			fakeNext = Substitute.For<ActionExecutionDelegate>();
+				Array.Empty<IFilterMetadata>());
 		}
 
 		[Test]
-		public async Task OnActionExecutionAsync_WhenAuthenticationTokenProvided_ProceedsToNextActionFilter()
+		public void OnAuthorization_WhenAuthenticationTokenProvided_SetsRequestUser()
 		{
 			const string expectedAuthenticationToken = "575bab67-4f81-417a-8bae-cd062a0f9407";
 
-			fakeContext.HttpContext.Request.Headers.Add(
-				HttpHeaderName.Authorization, expectedAuthenticationToken);
+			fakeContext.HttpContext.Request.Headers.Add(HttpHeaderName.Authorization, expectedAuthenticationToken);
 
-			await sut.OnActionExecutionAsync(fakeContext, fakeNext);
+			sut.OnAuthorization(fakeContext);
 
 			var actual = fakeContext.HttpContext.User;
 
 			Assert.That(actual, Is.Not.Null, nameof(fakeContext.HttpContext.User));
 			Assert.That(actual.Identity.Name, Is.EqualTo(expectedAuthenticationToken).IgnoreCase, nameof(actual.Identity.Name));
-
-			await fakeNext.Received(1).Invoke();
 		}
 
 		[Test]
-		public async Task OnActionExecutionAsync_WhenAuthenticationTokenIsNotProvided_Returns401()
+		public void OnAuthorization_WhenAuthenticationTokenIsNotProvided_Returns401()
 		{
-			await sut.OnActionExecutionAsync(fakeContext, fakeNext);
+			sut.OnAuthorization(fakeContext);
 
 			var actual = fakeContext.Result as UnauthorizedObjectResult;
 
 			Assert.That(actual, Is.Not.Null, nameof(fakeContext.Result));
 			Assert.That(actual.Value, Does.Contain("provide an authentication token").IgnoreCase, nameof(actual.Value));
-
-			await fakeNext.DidNotReceive().Invoke();
 		}
 
-		[Test]
-		public async Task OnActionExecutionAsync_WhenAuthenticationTokenIsInvalid_Returns400()
+		[TestCase("test")]
+		[TestCase("{df4f3ec0-5481-4ff8-9943-c824e4292f32}")]
+		public void OnAuthorization_WhenAuthenticationTokenIsInvalid_Returns400(string invalidAuthenticationToken)
 		{
-			fakeContext.HttpContext.Request.Headers.Add(HttpHeaderName.Authorization, "test");
+			fakeContext.HttpContext.Request.Headers.Add(HttpHeaderName.Authorization, invalidAuthenticationToken);
 
-			await sut.OnActionExecutionAsync(fakeContext, fakeNext);
+			sut.OnAuthorization(fakeContext);
 
 			var actual = fakeContext.Result as ObjectResult;
 
 			Assert.That(actual, Is.Not.Null, nameof(fakeContext.Result));
 			Assert.That(actual.StatusCode, Is.EqualTo((int)HttpStatusCode.BadRequest), nameof(actual.StatusCode));
 			Assert.That(actual.Value, Does.Contain("valid authentication token").IgnoreCase, nameof(actual.Value));
-
-			await fakeNext.DidNotReceive().Invoke();
 		}
 	}
 }

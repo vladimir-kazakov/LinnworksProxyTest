@@ -12,7 +12,7 @@
 	/// require strange data transformations.
 	/// </remarks>
 	[ApiController, Route("[controller]")]
-	[ServiceFilter(typeof(AuthenticationActionFilter))]
+	[RequireAuthenticationToken]
 	[ServiceFilter(typeof(WebApiKnownExceptionHandler))]
 	public class CategoriesController : ControllerBase
 	{
