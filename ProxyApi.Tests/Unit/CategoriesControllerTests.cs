@@ -29,13 +29,20 @@
 
 			fakeWebApiFactory.Create(Arg.Any<string>()).Returns(fakeWebApi);
 
+			var claims = new[]
+			{
+				new Claim(ProxyClaimTypes.AuthenticationToken, "0d3ed01c-e2f5-471e-aa3d-40c40a520ed1")
+			};
+
+			var identify = new ClaimsIdentity(claims, "Token");
+
 			sut = new CategoriesController(fakeWebApiFactory)
 			{
 				ControllerContext = new ControllerContext
 				{
 					HttpContext = new DefaultHttpContext
 					{
-						User = new ClaimsPrincipal(new AuthenticationTokenIdentity("0d3ed01c-e2f5-471e-aa3d-40c40a520ed1"))
+						User = new ClaimsPrincipal(identify)
 					}
 				}
 			};

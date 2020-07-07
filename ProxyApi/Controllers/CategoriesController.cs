@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Net;
+	using System.Security.Claims;
 	using System.Threading.Tasks;
 	using Microsoft.AspNetCore.Mvc;
 	using Models;
@@ -26,7 +27,7 @@
 		[HttpGet]
 		public async Task<Category[]> GetAsync()
 		{
-			var webApi = webApiFactory.Create(User.Identity.Name);
+			var webApi = webApiFactory.Create(User.FindFirstValue(ProxyClaimTypes.AuthenticationToken));
 
 			return await webApi.GetCategoriesWithProductsCountAsync();
 		}
@@ -34,7 +35,7 @@
 		[HttpPost]
 		public async Task<ActionResult<Category>> PostAsync(NewCategory newCategory)
 		{
-			var webApi = webApiFactory.Create(User.Identity.Name);
+			var webApi = webApiFactory.Create(User.FindFirstValue(ProxyClaimTypes.AuthenticationToken));
 
 			// Since the Linnworks Web API doesn't have an endpoint to get a category by its ID,
 			// and the create new category endpoint also doesn't return the Location HTTP response header,
@@ -45,7 +46,7 @@
 		[HttpPut("{id}")]
 		public async Task<IActionResult> PutAsync(Guid id, UpdatedCategory updatedCategory)
 		{
-			var webApi = webApiFactory.Create(User.Identity.Name);
+			var webApi = webApiFactory.Create(User.FindFirstValue(ProxyClaimTypes.AuthenticationToken));
 
 			await webApi.UpdateCategoryAsync(new Entities.Category
 			{
@@ -59,7 +60,7 @@
 		[HttpDelete("{id}")]
 		public async Task<IActionResult> DeleteAsync(Guid id)
 		{
-			var webApi = webApiFactory.Create(User.Identity.Name);
+			var webApi = webApiFactory.Create(User.FindFirstValue(ProxyClaimTypes.AuthenticationToken));
 
 			await webApi.DeleteCategoryAsync(id);
 

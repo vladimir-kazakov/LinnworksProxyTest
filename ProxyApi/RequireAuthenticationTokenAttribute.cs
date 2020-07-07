@@ -34,7 +34,14 @@
 				return;
 			}
 
-			context.HttpContext.User = new ClaimsPrincipal(new AuthenticationTokenIdentity(authenticationToken));
+			var claims = new[]
+			{
+				new Claim(ProxyClaimTypes.AuthenticationToken, authenticationToken, ClaimValueTypes.String, "Linnworks")
+			};
+
+			var identity = new ClaimsIdentity(claims, "Token");
+
+			context.HttpContext.User = new ClaimsPrincipal(identity);
 		}
 	}
 }

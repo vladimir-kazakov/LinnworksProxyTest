@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Net;
+	using System.Security.Claims;
 	using Microsoft.AspNetCore.Http;
 	using Microsoft.AspNetCore.Mvc;
 	using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -27,7 +28,7 @@
 		}
 
 		[Test]
-		public void OnAuthorization_WhenAuthenticationTokenProvided_SetsRequestUser()
+		public void OnAuthorization_WhenAuthenticationTokenProvided_MakesItAvailableThroughRequestUser()
 		{
 			const string expectedAuthenticationToken = "575bab67-4f81-417a-8bae-cd062a0f9407";
 
@@ -35,10 +36,9 @@
 
 			sut.OnAuthorization(fakeContext);
 
-			var actual = fakeContext.HttpContext.User;
+			var actualAuthenticationToken = fakeContext.HttpContext.User.FindFirstValue(ProxyClaimTypes.AuthenticationToken);
 
-			Assert.That(actual, Is.Not.Null, nameof(fakeContext.HttpContext.User));
-			Assert.That(actual.Identity.Name, Is.EqualTo(expectedAuthenticationToken).IgnoreCase, nameof(actual.Identity.Name));
+			Assert.That(actualAuthenticationToken, Is.EqualTo(expectedAuthenticationToken));
 		}
 
 		[Test]
